@@ -44,8 +44,6 @@ def add_arguments_datagen(parser: ArgumentParser):
     parser.add_argument(
         "--show", action="store_true", help="show a track visual example"
     )
-    parser.add_argument("--energy", type=float)
-    parser.add_argument("--res", type=float)
     parser.set_defaults(func=datagen)
 
 
