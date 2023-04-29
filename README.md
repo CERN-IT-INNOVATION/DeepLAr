@@ -1,6 +1,8 @@
 # DeepLAr
 
-DeepLAr: Deep Learning classifier for low-energy events in Liquid Argon TPC
+DeepLAr: Deep Learning classifier for low-energy events in Liquid Argon TPC.
+
+This project is a readaptation of [QuaKe](https://github.com/qismib/QuaKe).
 
 ## Installation
 
@@ -62,11 +64,6 @@ optional arguments:
 
 Models' parameter settings are stored in `yaml` files. The [cards](cards) folder
 contains some examples.
-
-## Pipeline (TODO)
-
-Implement a Makefile to run the entire pipeline given a runcard. A default
-subcommand with the entire pipeline can also be implemented.
 
 ### Data generation
 
