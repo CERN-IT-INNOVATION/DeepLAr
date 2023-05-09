@@ -168,7 +168,6 @@ def get_data(file: Path, geo: Geometry, dsetup: dict) -> np.ndarray:
     YZ_plane = np.expand_dims(tf.sparse.reduce_sum(matrix, axis=1), 3)
     XZ_plane = np.expand_dims(tf.sparse.reduce_sum(matrix, axis=2), 3)
     XY_plane = np.expand_dims(tf.sparse.reduce_sum(matrix, axis=3), 3)
-
     if dsetup["should_crop_planes"]:
         YZ_plane = roll_crop(
             np.copy(YZ_plane), geo.nb_ybins_reduced, geo.nb_zbins_reduced
@@ -183,7 +182,19 @@ def get_data(file: Path, geo: Geometry, dsetup: dict) -> np.ndarray:
     return [YZ_plane, XZ_plane, XY_plane]
 
 
-def get_n_evts(data_folder: Path, geo: Geometry) -> int:
+def get_n_evts(data_folder: Path, geo: Geometry) -> Tuple[int]:
+    """Calculates the total number of events in all the files.
+
+    Parameters:
+    -----------
+    data_folder: Path
+        Directory name where '.npz' files are stored.
+    
+    Returns:
+    --------
+    Tuple[int]
+        The number of signal and background events.
+    """
     n_evts_sig = 0
     n_evts_bkg = 0
     for file in data_folder.iterdir():
@@ -253,17 +264,28 @@ def load_projections_and_labels(
     geo = Geometry(dsetup)
 
     n_evts_sig, n_evts_bkg = get_n_evts(data_folder, geo)
-    data_sig_x, data_sig_y, data_sig_z = (
-        np.zeros((n_evts_sig, geo.nb_ybins_reduced, geo.nb_zbins_reduced, 1)),
-        np.zeros((n_evts_sig, geo.nb_xbins_reduced, geo.nb_zbins_reduced, 1)),
-        np.zeros((n_evts_sig, geo.nb_xbins_reduced, geo.nb_ybins_reduced, 1)),
-    )
-    data_bkg_x, data_bkg_y, data_bkg_z = (
-        np.zeros((n_evts_bkg, geo.nb_ybins_reduced, geo.nb_zbins_reduced, 1)),
-        np.zeros((n_evts_bkg, geo.nb_xbins_reduced, geo.nb_zbins_reduced, 1)),
-        np.zeros((n_evts_bkg, geo.nb_xbins_reduced, geo.nb_ybins_reduced, 1)),
-    )
-
+    if dsetup["should_crop_planes"]:
+        data_sig_x, data_sig_y, data_sig_z = (
+            np.zeros((n_evts_sig, geo.nb_ybins_reduced, geo.nb_zbins_reduced, 1)),
+            np.zeros((n_evts_sig, geo.nb_xbins_reduced, geo.nb_zbins_reduced, 1)),
+            np.zeros((n_evts_sig, geo.nb_xbins_reduced, geo.nb_ybins_reduced, 1)),
+        )
+        data_bkg_x, data_bkg_y, data_bkg_z = (
+            np.zeros((n_evts_bkg, geo.nb_ybins_reduced, geo.nb_zbins_reduced, 1)),
+            np.zeros((n_evts_bkg, geo.nb_xbins_reduced, geo.nb_zbins_reduced, 1)),
+            np.zeros((n_evts_bkg, geo.nb_xbins_reduced, geo.nb_ybins_reduced, 1)),
+        )
+    else:
+        data_sig_x, data_sig_y, data_sig_z = (
+            np.zeros((n_evts_sig, geo.nb_ybins, geo.nb_zbins, 1)),
+            np.zeros((n_evts_sig, geo.nb_xbins, geo.nb_zbins, 1)),
+            np.zeros((n_evts_sig, geo.nb_xbins, geo.nb_ybins, 1)),
+        )
+        data_bkg_x, data_bkg_y, data_bkg_z = (
+            np.zeros((n_evts_bkg, geo.nb_ybins, geo.nb_zbins, 1)),
+            np.zeros((n_evts_bkg, geo.nb_xbins, geo.nb_zbins, 1)),
+            np.zeros((n_evts_bkg, geo.nb_xbins, geo.nb_ybins, 1)),
+        )
     counter_sig = 0
     counter_bkg = 0
     for file in data_folder.iterdir():
